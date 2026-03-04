@@ -127,7 +127,8 @@
             padding: 0.6rem 0.75rem;
             border: 1px solid var(--border);
             border-radius: 6px;
-            font-size: 0.95rem;
+            font-size: 16px;
+            /* スマホ(iOS)の自動ズーム防止 */
             font-family: inherit;
             color: var(--text-main);
             transition: border-color 0.2s, box-shadow 0.2s;
@@ -167,8 +168,17 @@
 
         .dynamic-table input,
         .dynamic-table select {
-            width: 90%;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 80px;
+            /* プルダウン文字の隠れ防止 */
             margin: 0;
+        }
+
+        /* 名称入力欄はある程度の幅を確保 */
+        .dynamic-table .p-name,
+        .dynamic-table .o-name {
+            min-width: 140px;
         }
 
         .btn-icon {
