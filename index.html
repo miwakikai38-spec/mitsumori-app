@@ -359,8 +359,8 @@
                     <input type="number" id="materialCost" value="" min="0" step="1" placeholder="例: 95">
                 </div>
                 <div class="form-group">
-                    <label>時間単価（円/分）</label>
-                    <input type="number" id="hourlyRate" value="" min="0" step="1" placeholder="例: 70">
+                    <label>時間単価（円/時間）</label>
+                    <input type="number" id="hourlyRate" value="" min="0" step="1" placeholder="例: 4200">
                 </div>
                 <div class="form-group">
                     <label>諸経費率 (倍率)</label>
@@ -476,6 +476,7 @@
                 <td><input type="number" class="p-time" value="${time}" placeholder="数値" min="0" step="0.1"></td>
                 <td>
                     <select class="p-unit">
+                        <option value="時間" ${unit === '時間' ? 'selected' : ''}>時間</option>
                         <option value="分" ${unit === '分' ? 'selected' : ''}>分</option>
                         <option value="秒" ${unit === '秒' ? 'selected' : ''}>秒</option>
                     </select>
@@ -532,7 +533,7 @@
                 `型番\t${document.getElementById('modelID').value || '未入力'}`,
                 `製品名\t${document.getElementById('productName').value || '未入力'}`,
                 `材料費（円/個）\t${document.getElementById('materialCost').value || '0'}`,
-                `時間単価（円/分）\t${document.getElementById('hourlyRate').value || '0'}`,
+                `時間単価（円/時間）\t${document.getElementById('hourlyRate').value || '0'}`,
                 `諸経費率\t${document.getElementById('overheadRate').value || '1'}`,
                 `今回のお見積もり数量（個）\t${document.getElementById('orderQty').value || '0'}`,
                 `ロット作業1回で処理できる個数\t${document.getElementById('lotSize').value || ''}`,
