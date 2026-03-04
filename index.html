@@ -461,6 +461,26 @@
         </div>
     </div>
 
+    <!-- Datalist for Outsource Options -->
+    <datalist id="outsource-options">
+        <option value="機械加工"></option>
+        <option value="板金・溶接"></option>
+        <option value="熱処理（焼き入れ・焼き戻し・浸炭・高周波など）"></option>
+        <option value="表面処理（メッキ・アルマイト・黒染め・パーカー処理など）"></option>
+        <option value="塗装"></option>
+        <option value="組立"></option>
+        <option value="設計"></option>
+        <option value="制御盤製作"></option>
+        <option value="電気工事"></option>
+        <!-- その他の汎用候補 -->
+        <option value="材料手配（素材購入）"></option>
+        <option value="購入品（市販部品・規格品）"></option>
+        <option value="レーザー・ウォータージェット加工"></option>
+        <option value="研磨・ブラスト処理"></option>
+        <option value="検査・測定"></option>
+        <option value="梱包・輸送費"></option>
+    </datalist>
+
     <!-- Script -->
     <script>
         function resetTables() {
@@ -496,7 +516,7 @@
             const tbody = document.getElementById("outsourceBody");
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td><input type="text" class="o-name" value="${name}" placeholder="例: 黒染め処理"></td>
+                <td><input type="text" class="o-name" value="${name}" list="outsource-options" placeholder="例: 黒染め処理"></td>
                 <td><input type="number" class="o-cost" value="${cost}" placeholder="金額" min="0" step="1"></td>
                 <td>
                     <select class="o-unit">
