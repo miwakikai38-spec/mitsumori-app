@@ -3,11 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 見積もり入力＆ジェネレーター</title>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI見積もりジェネレーター (複数品番対応)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -331,137 +328,168 @@
                 font-size: 1rem;
             }
         }
+
+        .global-card {
+            background: #f8fafc;
+            border: 2px solid var(--accent);
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .global-card h2 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .item-card {
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            background: white;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s;
+        }
+
+        .item-card:hover {
+            border-color: #94a3b8;
+        }
+
+        .item-header {
+            background: var(--primary-bg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .item-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--text-main);
+        }
+
+        .item-body {
+            padding: 1.5rem;
+        }
+
+        .item-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px dashed var(--border);
+        }
+
+        .item-section h4 {
+            margin-top: 0;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-add-item {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: white;
+            border: 2px dashed var(--accent);
+            color: var(--accent);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-add-item:hover {
+            background: #eff6ff;
+        }
+
+        .btn-remove-item {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .btn-remove-item:hover {
+            background: #fca5a5;
+        }
     </style>
 </head>
 
 <body>
-
     <div class="container">
         <div class="header">
-            <h1>見積もりデータ ジェネレーター</h1>
-            <p>入力したデータをAI用にフォーマットし、ワンクリックでコピーします</p>
+            <h1><i class="fa-solid fa-robot"></i> AI見積もりジェネレーター (複数一括)</h1>
+            <p>※案件の共通条件と、各部品の個別条件（工程・外注等）を入力し、AI向けテキストをコピーします。</p>
         </div>
 
-        <!-- 1. 見積もり条件 -->
-        <div class="card">
-            <h2><i class="fa-solid fa-list-check"></i> 見積もり条件</h2>
+        <!-- 【1】案件共通設定 -->
+        <div class="global-card">
+            <h2><i class="fa-solid fa-building"></i> 案件 共通設定</h2>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>型番</label>
-                    <input type="text" id="modelID" value="" placeholder="例: s-01-sp">
+                    <label>日付</label>
+                    <input type="date" id="g-date">
                 </div>
                 <div class="form-group">
-                    <label>製品名</label>
-                    <input type="text" id="productName" value="" placeholder="例: sp">
+                    <label>顧客名</label>
+                    <input type="text" id="g-customer" placeholder="例: 株式会社〇〇">
                 </div>
                 <div class="form-group">
-                    <label>材料費（円/個）</label>
-                    <input type="number" id="materialCost" value="" min="0" step="1" placeholder="例: 95">
+                    <label>案件名</label>
+                    <input type="text" id="g-project" placeholder="例: 新規設備部品製作">
+                </div>
+                <div class="form-group">
+                    <label>見積依頼No.</label>
+                    <input type="text" id="g-reqNo" placeholder="例: REQ-2026-001">
+                </div>
+                <div class="form-group"
+                    style="grid-column: 1 / -1; border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 0.5rem;">
+                    <p style="margin:0 0 10px 0; font-weight:bold; color:var(--accent);">💰 全体共通の原価設定</p>
                 </div>
                 <div class="form-group">
                     <label>時間単価（円/時間）</label>
-                    <input type="number" id="hourlyRate" value="" min="0" step="1" placeholder="例: 4200">
+                    <input type="number" id="g-hourlyRate" min="0" step="1" placeholder="例: 4200" value="4200">
                 </div>
                 <div class="form-group">
                     <label>諸経費率 (倍率)</label>
-                    <input type="number" id="overheadRate" value="" min="1" step="0.1" placeholder="例: 2.0">
-                </div>
-                <div class="form-group">
-                    <label>今回のお見積もり数量（個）</label>
-                    <input type="number" id="orderQty" value="" min="1" step="1" placeholder="例: 300">
-                </div>
-                <div class="form-group">
-                    <label>ロット作業1回で処理できる個数</label>
-                    <input type="number" id="lotSize" placeholder="空欄なら注文全体で1回" min="1" step="1">
-                    <span class="help-text">空欄可</span>
-                </div>
-                <div class="form-group">
-                    <label>希望納期・管理用メモ</label>
-                    <input type="text" id="deliveryMemo" placeholder="例: 3週間以内、〇月〇日必着など">
-                    <span class="help-text">スケジューリングの目標に使用します</span>
+                    <input type="number" id="g-overheadRate" min="1" step="0.1" placeholder="例: 2.0" value="1.5">
                 </div>
             </div>
         </div>
 
-        <!-- 2. 外注費・納期データ -->
-        <div class="card" style="border-left: 4px solid var(--warning);">
-            <h2><i class="fa-solid fa-truck-fast" style="color: var(--warning);"></i> 外注・処理費用（オプション）</h2>
-            <p class="help-text" style="margin-top: -10px; margin-bottom: 15px;">
-                ※社内で対応できない工程（メッキ処理、熱処理など）の外注費や、その工程にかかる目安日数（リードタイム）を入力</p>
-            <div class="table-responsive">
-                <table class="dynamic-table" id="outsourceTable">
-                    <thead>
-                        <tr>
-                            <th>外注工程名 / 業者名</th>
-                            <th>単価（円）</th>
-                            <th>単位</th>
-                            <th>リードタイム（納期/日数）</th>
-                            <th style="width: 50px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="outsourceBody">
-                        <!-- 初期は空 -->
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn btn-secondary" onclick="addOutsourceRow()"><i class="fa-solid fa-plus"></i>
-                外注工程を追加</button>
+        <!-- 【2】アイテムリスト（部品ごと） -->
+        <div id="itemList">
+            <!-- 初期表示アイテムはJSで生成 -->
         </div>
 
-        <!-- 3. 工程データ -->
-        <div class="card">
-            <h2><i class="fa-solid fa-gears"></i> 内製 工程データ</h2>
-            <div class="table-responsive">
-                <table class="dynamic-table" id="processTable">
-                    <thead>
-                        <tr>
-                            <th>工程名</th>
-                            <th>所要時間</th>
-                            <th>単位</th>
-                            <th>適用範囲</th>
-                            <th style="width: 50px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="processBody">
-                        <!-- 初期表示として空行を1つ用意 -->
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn btn-secondary" onclick="addProcessRow()"><i class="fa-solid fa-plus"></i> 工程を追加</button>
-        </div>
-
-        <!-- 4. 数量スライド割引設定 -->
-        <div class="card">
-            <h2><i class="fa-solid fa-tags"></i> 数量スライド割引設定 (オプション)</h2>
-            <div class="table-responsive">
-                <table class="dynamic-table" id="discountTable">
-                    <thead>
-                        <tr>
-                            <th>条件 (〇〇個以上なら)</th>
-                            <th>材料費の割引倍率 (例: 0.95)</th>
-                            <th>時間単価の割引倍率 (例: 0.90)</th>
-                            <th style="width: 50px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="discountBody">
-                        <!-- 初期は空 -->
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn btn-secondary" onclick="addDiscountRow()"><i class="fa-solid fa-plus"></i>
-                割引条件を追加</button>
-        </div>
+        <button class="btn-add-item" onclick="addItem()"><i class="fa-solid fa-circle-plus"></i> 新しい部品（型番）を追加する</button>
 
         <!-- Action Bar -->
-        <div class="action-bar" style="position: relative;">
+        <div class="action-bar" style="position: relative; margin-top: 2rem;">
             <div class="copy-tooltip" id="copyTooltip">AI用テキストをコピーしました！</div>
-            <button class="btn btn-primary" id="copyBtn" onclick="generateAndCopy()">
-                <i class="fa-solid fa-copy"></i> AIに投げるテキストをコピーする
+            <button class="btn-primary" id="copyBtn" onclick="generateAndCopy()">
+                <i class="fa-solid fa-copy"></i> すべてまとめてAIに投げるテキストをコピー
             </button>
         </div>
     </div>
 
-    <!-- Datalist for Outsource Options -->
     <datalist id="outsource-options">
         <option value="機械加工"></option>
         <option value="板金・溶接"></option>
@@ -481,146 +509,300 @@
         <option value="梱包・輸送費"></option>
     </datalist>
 
-    <!-- Script -->
+    <!-- テンプレート要素（JSでクローン用） -->
+    <template id="item-template">
+        <div class="item-card">
+            <div class="item-header">
+                <h3 class="item-title">型番: <span class="disp-model">未入力</span></h3>
+                <button class="btn-remove-item" onclick="removeItem(this)">削除</button>
+            </div>
+            <div class="item-body">
+                <!-- 個別見積条件 -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>型番</label>
+                        <input type="text" class="i-modelID" placeholder="例: A-100" oninput="updateItemTitle(this)">
+                    </div>
+                    <div class="form-group">
+                        <label>製品名</label>
+                        <input type="text" class="i-productName" placeholder="例: ブラケット">
+                    </div>
+                    <div class="form-group">
+                        <label>今回のお見積もり数量（個）</label>
+                        <input type="number" class="i-orderQty" min="1" step="1" placeholder="例: 300">
+                    </div>
+                    <div class="form-group">
+                        <label>材料費（円/個）</label>
+                        <input type="number" class="i-materialCost" min="0" step="1" placeholder="例: 95">
+                    </div>
+                    <div class="form-group">
+                        <label>ロット作業1回で処理数 <span class="help-text">空欄なら受注数1回</span></label>
+                        <input type="number" class="i-lotSize" min="1" step="1" placeholder="例: 50">
+                    </div>
+                    <div class="form-group">
+                        <label>納期などの管理メモ</label>
+                        <input type="text" class="i-deliveryMemo" placeholder="例: 3週間以内">
+                    </div>
+                </div>
+
+                <!-- 外注費 -->
+                <div class="item-section">
+                    <h4 style="color: var(--warning);"><i class="fa-solid fa-truck-fast"></i> 外注・処理費用（オプション）</h4>
+                    <div class="table-responsive">
+                        <table class="dynamic-table i-outsourceTable">
+                            <thead>
+                                <tr>
+                                    <th>外注工程名 / 業者名</th>
+                                    <th>単価（円）</th>
+                                    <th>単位</th>
+                                    <th>LT（日数）</th>
+                                    <th style="width: 40px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-secondary" style="font-size:0.85rem;" onclick="addOutsourceRow(this)"><i
+                            class="fa-solid fa-plus"></i> 外注を追加</button>
+                </div>
+
+                <!-- 内製工程 -->
+                <div class="item-section">
+                    <h4><i class="fa-solid fa-gears"></i> 内製 工程データ</h4>
+                    <div class="table-responsive">
+                        <table class="dynamic-table i-processTable">
+                            <thead>
+                                <tr>
+                                    <th>工程名</th>
+                                    <th>所要時間</th>
+                                    <th>単位</th>
+                                    <th>適用範囲</th>
+                                    <th style="width: 40px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-secondary" style="font-size:0.85rem;" onclick="addProcessRow(this)"><i
+                            class="fa-solid fa-plus"></i> 工程を追加</button>
+                </div>
+
+                <!-- 割引 -->
+                <div class="item-section">
+                    <h4><i class="fa-solid fa-tags"></i> 数量スライド割引設定 (オプション)</h4>
+                    <div class="table-responsive">
+                        <table class="dynamic-table i-discountTable">
+                            <thead>
+                                <tr>
+                                    <th>条件 (個以上)</th>
+                                    <th>材料費 倍率</th>
+                                    <th>時間単価 倍率</th>
+                                    <th style="width: 40px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-secondary" style="font-size:0.85rem;" onclick="addDiscountRow(this)"><i
+                            class="fa-solid fa-plus"></i> 割引を追加</button>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
     <script>
-        function resetTables() {
-            // 初期状態は空行を1つずつ用意する
-            addProcessRow();
+        // 日付の初期化
+        document.getElementById('g-date').valueAsDate = new Date();
+
+        // アイテム追加
+        let itemIndex = 0;
+        function addItem() {
+            itemIndex++;
+            const template = document.getElementById('item-template');
+            const clone = template.content.cloneNode(true);
+            const itemCard = clone.querySelector('.item-card');
+
+            // 最初の行は1つ入れておく
+            addProcessRowInternal(itemCard.querySelector('.i-processTable tbody'));
+
+            // 初回アイテムは削除ボタンを隠す（最低1つは残す場合。今回は任意で全部消しても再度足せるようにする）
+            if (itemIndex === 1 && document.getElementById('itemList').children.length === 0) {
+                itemCard.querySelector('.btn-remove-item').style.display = 'none';
+            }
+
+            document.getElementById('itemList').appendChild(clone);
         }
 
-        function addProcessRow(name = "", time = "", unit = "分", scope = "個") {
-            const tbody = document.getElementById("processBody");
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><input type="text" class="p-name" value="${name}" placeholder="工程名"></td>
-                <td><input type="number" class="p-time" value="${time}" placeholder="数値" min="0" step="0.1"></td>
-                <td>
-                    <select class="p-unit">
-                        <option value="時間" ${unit === '時間' ? 'selected' : ''}>時間</option>
-                        <option value="分" ${unit === '分' ? 'selected' : ''}>分</option>
-                        <option value="秒" ${unit === '秒' ? 'selected' : ''}>秒</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="p-scope">
-                        <option value="個" ${scope === '個' ? 'selected' : ''}>個</option>
-                        <option value="ロット" ${scope === 'ロット' ? 'selected' : ''}>ロット</option>
-                    </select>
-                </td>
-                <td><button class="btn-icon" onclick="removeRow(this)" title="削除"><i class="fa-solid fa-trash"></i></button></td>
-            `;
-            tbody.appendChild(tr);
+        function removeItem(btn) {
+            if (confirm("この部品を削除してもよろしいですか？")) {
+                btn.closest('.item-card').remove();
+            }
         }
 
-        function addOutsourceRow(name = "", cost = "", unit = "個", days = "") {
-            const tbody = document.getElementById("outsourceBody");
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><input type="text" class="o-name" value="${name}" list="outsource-options" placeholder="例: 黒染め処理"></td>
-                <td><input type="number" class="o-cost" value="${cost}" placeholder="金額" min="0" step="1"></td>
-                <td>
-                    <select class="o-unit">
-                        <option value="個" ${unit === '個' ? 'selected' : ''}>個</option>
-                        <option value="ロット" ${unit === 'ロット' ? 'selected' : ''}>ロット（一式）</option>
-                    </select>
-                </td>
-                <td><input type="number" class="o-days" value="${days}" placeholder="日数" min="0" step="1"></td>
-                <td><button class="btn-icon" onclick="removeRow(this)" title="削除"><i class="fa-solid fa-trash"></i></button></td>
-            `;
-            tbody.appendChild(tr);
+        function updateItemTitle(input) {
+            const val = input.value || "未入力";
+            input.closest('.item-card').querySelector('.disp-model').textContent = val;
         }
 
-        function addDiscountRow() {
-            const tbody = document.getElementById("discountBody");
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><input type="number" class="d-limit" placeholder="例: 500" min="1"></td>
-                <td><input type="number" class="d-mat" placeholder="例: 0.95" step="0.01"></td>
-                <td><input type="number" class="d-time" placeholder="例: 0.95" step="0.01"></td>
-                <td><button class="btn-icon" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td>
-            `;
-            tbody.appendChild(tr);
+        // 行追加・削除処理
+        function getTbody(btn, tableClass) {
+            return btn.closest('.item-section').querySelector('.' + tableClass + ' tbody');
         }
 
         function removeRow(btn) {
             btn.closest('tr').remove();
         }
 
+        function addProcessRow(btn) {
+            const tbody = getTbody(btn, 'i-processTable');
+            addProcessRowInternal(tbody);
+        }
+
+        function addProcessRowInternal(tbody, name = "", time = "", unit = "分", scope = "個") {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><input type="text" class="p-name" value="${name}" placeholder="工程名"></td>
+                <td><input type="number" class="p-time" value="${time}" placeholder="数値" min="0" step="0.1"></td>
+                <td>
+                    <select class="p-unit">
+                        <option value="時間">時間</option>
+                        <option value="分" selected>分</option>
+                        <option value="秒">秒</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="p-scope">
+                        <option value="個">個</option>
+                        <option value="ロット">ロット</option>
+                    </select>
+                </td>
+                <td><button tabindex="-1" class="btn-icon" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            // select状態復元
+            if (unit) tr.querySelector('.p-unit').value = unit;
+            if (scope) tr.querySelector('.p-scope').value = scope;
+            tbody.appendChild(tr);
+        }
+
+        function addOutsourceRow(btn, name = "", cost = "", unit = "個", days = "") {
+            const tbody = getTbody(btn, 'i-outsourceTable');
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><input type="text" class="o-name" value="${name}" list="outsource-options" placeholder="処理名"></td>
+                <td><input type="number" class="o-cost" value="${cost}" placeholder="金額" min="0" step="1"></td>
+                <td>
+                    <select class="o-unit">
+                        <option value="個" ${unit === '個' ? 'selected' : ''}>個</option>
+                        <option value="ロット" ${unit === 'ロット' ? 'selected' : ''}>一式(ロット)</option>
+                    </select>
+                </td>
+                <td><input type="number" class="o-days" value="${days}" placeholder="日数" min="0" step="1"></td>
+                <td><button tabindex="-1" class="btn-icon" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function addDiscountRow(btn) {
+            const tbody = getTbody(btn, 'i-discountTable');
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><input type="number" class="d-limit" placeholder="個" min="1"></td>
+                <td><input type="number" class="d-mat" placeholder="倍率" step="0.01"></td>
+                <td><input type="number" class="d-time" placeholder="倍率" step="0.01"></td>
+                <td><button tabindex="-1" class="btn-icon" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // データ抽出と生成
         function generateAndCopy() {
-            // 1. Gather Conditions
-            const cond = [
-                "【見積もり・納期条件】",
-                `型番\t${document.getElementById('modelID').value || '未入力'}`,
-                `製品名\t${document.getElementById('productName').value || '未入力'}`,
-                `材料費（円/個）\t${document.getElementById('materialCost').value || '0'}`,
-                `時間単価（円/時間）\t${document.getElementById('hourlyRate').value || '0'}`,
-                `諸経費率\t${document.getElementById('overheadRate').value || '1'}`,
-                `今回のお見積もり数量（個）\t${document.getElementById('orderQty').value || '0'}`,
-                `ロット作業1回で処理できる個数\t${document.getElementById('lotSize').value || ''}`,
-                `希望納期メモ\t${document.getElementById('deliveryMemo').value || '特になし'}`
-            ].join('\n');
+            const items = document.querySelectorAll('.item-card');
+            if (items.length === 0) {
+                alert("部品（アイテム）を1つ以上追加してください。");
+                return;
+            }
 
-            // 2. Gather Outsource
-            let outStr = "\n\n【外注費・納期データ（オプション）】\n外注工程名\t単価(円)\t単位(個/ロット)\tリードタイム(日)";
-            const outRows = document.querySelectorAll('#outsourceBody tr');
-            outRows.forEach(row => {
-                const name = row.querySelector('.o-name').value;
-                const cost = row.querySelector('.o-cost').value;
-                const unit = row.querySelector('.o-unit').value;
-                const days = row.querySelector('.o-days').value;
-                if (name || cost) {
-                    outStr += `\n${name || '名称未設定'}\t${cost || '0'}\t${unit}\t${days || '0'}`;
+            // 共通データ
+            let text = "【案件共通設定】\\n";
+            text += `日付\\t${document.getElementById('g-date').value}\\n`;
+            text += `顧客名\\t${document.getElementById('g-customer').value || ''}\\n`;
+            text += `案件名\\t${document.getElementById('g-project').value || ''}\\n`;
+            text += `見積依頼No.\\t${document.getElementById('g-reqNo').value || ''}\\n`;
+            text += `時間単価（円/時間）\\t${document.getElementById('g-hourlyRate').value || '0'}\\n`;
+            text += `諸経費率\\t${document.getElementById('g-overheadRate').value || '1'}\\n`;
+            text += "\\n=====================================\\n";
+
+            // 個別データ
+            items.forEach((card, idx) => {
+                let itemNo = idx + 1;
+                text += `\\n↓↓【部品 ${itemNo}】の見積もり条件 ↓↓\\n\\n`;
+                text += `型番\\t${card.querySelector('.i-modelID').value || '未入力'}\\n`;
+                text += `製品名\\t${card.querySelector('.i-productName').value || '未入力'}\\n`;
+                text += `材料費（円/個）\\t${card.querySelector('.i-materialCost').value || '0'}\\n`;
+                text += `今回のお見積もり数量（個）\\t${card.querySelector('.i-orderQty').value || '0'}\\n`;
+                text += `ロット作業1回で処理できる個数\\t${card.querySelector('.i-lotSize').value || ''}\\n`;
+                text += `納期など管理メモ\\t${card.querySelector('.i-deliveryMemo').value || ''}\\n`;
+
+                // 外注費
+                const outRows = card.querySelectorAll('.i-outsourceTable tbody tr');
+                if (outRows.length > 0) {
+                    text += "\\n【外注費・納期データ（オプション）】\\n外注工程名 / 業者名\\t単価（円）\\t単位\\tリードタイム（納期/日数）\\n";
+                    outRows.forEach(tr => {
+                        let name = tr.querySelector('.o-name').value;
+                        let cost = tr.querySelector('.o-cost').value || '0';
+                        let unit = tr.querySelector('.o-unit').value;
+                        let days = tr.querySelector('.o-days').value || '';
+                        if (name) text += `${name}\\t${cost}\\t${unit}\\t${days}\\n`;
+                    });
                 }
+
+                // 内製工程
+                const procRows = card.querySelectorAll('.i-processTable tbody tr');
+                text += "\\n【内製 工程データ】\\n工程名\\t所要時間\\t単位\\t適用範囲\\n";
+                let hasProc = false;
+                procRows.forEach(tr => {
+                    let name = tr.querySelector('.p-name').value;
+                    let time = tr.querySelector('.p-time').value;
+                    let unit = tr.querySelector('.p-unit').value;
+                    let scope = tr.querySelector('.p-scope').value;
+                    if (name && time) {
+                        text += `${name}\\t${time}\\t${unit}\\t${scope}\\n`;
+                        hasProc = true;
+                    }
+                });
+                if (!hasProc) text += "なし\\n";
+
+                // 割引
+                const discRows = card.querySelectorAll('.i-discountTable tbody tr');
+                if (discRows.length > 0) {
+                    text += "\\n【数量スライド割引設定（オプション・使わない場合は空欄）】\\n条件（個以上）\\t材料費割引倍率\\t時間単価割引倍率\\n";
+                    discRows.forEach(tr => {
+                        let limit = tr.querySelector('.d-limit').value;
+                        let mat = tr.querySelector('.d-mat').value || '1';
+                        let time = tr.querySelector('.d-time').value || '1';
+                        if (limit) text += `${limit}\\t${mat}\\t${time}\\n`;
+                    });
+                }
+
+                text += "\\n-------------------------------------\\n";
             });
 
-            // 3. Gather Process
-            let procStr = "\n\n【内製 工程データ】\n工程名\t所要時間\t単位（分/秒）\t適用範囲（個/ロット）";
-            const procRows = document.querySelectorAll('#processBody tr');
-            procRows.forEach(row => {
-                const name = row.querySelector('.p-name').value;
-                const time = row.querySelector('.p-time').value;
-                const unit = row.querySelector('.p-unit').value;
-                const scope = row.querySelector('.p-scope').value;
-                if (name) {
-                    procStr += `\n${name}\t${time || '0'}\t${unit}\t${scope}`;
-                }
-            });
-
-            // 4. Gather Discounts
-            let discStr = "\n\n【数量スライド割引設定（オプション・使わない場合は空欄）】\n条件（個以上）\t材料費割引倍率\t時間単価割引倍率";
-            const discRows = document.querySelectorAll('#discountBody tr');
-            discRows.forEach(row => {
-                const limit = row.querySelector('.d-limit').value;
-                const mat = row.querySelector('.d-mat').value;
-                const time = row.querySelector('.d-time').value;
-                if (limit || mat || time) {
-                    discStr += `\n${limit}\t${mat || '1'}\t${time || '1'}`;
-                }
-            });
-
-            const finalString = cond + outStr + procStr + discStr;
-
-            // Copy to clipboard
-            navigator.clipboard.writeText(finalString).then(() => {
-                const btn = document.getElementById("copyBtn");
+            navigator.clipboard.writeText(text).then(() => {
+                // Tooltip Animation
                 const tooltip = document.getElementById("copyTooltip");
-
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> コピー完了！（AIのチャット欄にペーストしてください）';
-                btn.classList.add("success");
                 tooltip.classList.add("show");
-
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-copy"></i> AIに投げるテキストをコピーする';
-                    btn.classList.remove("success");
-                    tooltip.classList.remove("show");
-                }, 3000);
+                setTimeout(() => { tooltip.classList.remove("show"); }, 2000);
             }).catch(err => {
-                alert("クリップボードへのコピーに失敗しました。以下のテキストを手動でコピーしてください。\n\n" + finalString);
+                console.error("Copy failed", err);
+                alert("コピーに失敗しました。お使いのブラウザは対応していないか、テキストエリア等を手動でコピーしてください。\\n\\n" + text);
             });
         }
 
-        // Initialize
-        window.onload = resetTables;
+        // 起動時に1回アイテム追加
+        window.onload = function () {
+            addItem();
+        };
     </script>
 </body>
 
