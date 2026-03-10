@@ -471,6 +471,13 @@
                     <label>諸経費率 (倍率)</label>
                     <input type="number" id="g-overheadRate" min="1" step="0.1" placeholder="例: 2.0" value="1.5">
                 </div>
+                <div class="form-group" style="grid-column: 1 / -1; margin-top: 5px;">
+                    <label style="display:flex; align-items:center; cursor:pointer;">
+                        <input type="checkbox" id="g-simpleEstimate"
+                            style="width:auto; margin-right:8px; margin-bottom:0; min-width:auto;">
+                        <span style="font-weight:bold; color:var(--danger);">簡易見積を出力する（内訳と工程分析を省略）</span>
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -733,42 +740,46 @@
             }
 
             // 共通データ
-            let text = "【案件共通設定】\\n";
-            text += `日付\\t${document.getElementById('g-date').value}\\n`;
-            text += `顧客名\\t${document.getElementById('g-customer').value || ''}\\n`;
-            text += `案件名\\t${document.getElementById('g-project').value || ''}\\n`;
-            text += `見積依頼No.\\t${document.getElementById('g-reqNo').value || ''}\\n`;
-            text += `時間単価（円/時間）\\t${document.getElementById('g-hourlyRate').value || '0'}\\n`;
-            text += `諸経費率\\t${document.getElementById('g-overheadRate').value || '1'}\\n`;
-            text += "\\n=====================================\\n";
+            let text = "【案件共通設定】\n";
+            text += `日付\t${document.getElementById('g-date').value}\n`;
+            text += `顧客名\t${document.getElementById('g-customer').value || ''}\n`;
+            text += `案件名\t${document.getElementById('g-project').value || ''}\n`;
+            text += `見積依頼No.\t${document.getElementById('g-reqNo').value || ''}\n`;
+            text += `時間単価（円/時間）\t${document.getElementById('g-hourlyRate').value || '0'}\n`;
+            text += `諸経費率\t${document.getElementById('g-overheadRate').value || '1'}\n`;
+
+            const isSimple = document.getElementById('g-simpleEstimate').checked;
+            text += `簡易見積出力\t${isSimple ? '要' : '不要'}\n`;
+
+            text += "\n=====================================\n";
 
             // 個別データ
             items.forEach((card, idx) => {
                 let itemNo = idx + 1;
-                text += `\\n↓↓【部品 ${itemNo}】の見積もり条件 ↓↓\\n\\n`;
-                text += `型番\\t${card.querySelector('.i-modelID').value || '未入力'}\\n`;
-                text += `製品名\\t${card.querySelector('.i-productName').value || '未入力'}\\n`;
-                text += `材料費（円/個）\\t${card.querySelector('.i-materialCost').value || '0'}\\n`;
-                text += `今回のお見積もり数量（個）\\t${card.querySelector('.i-orderQty').value || '0'}\\n`;
-                text += `ロット作業1回で処理できる個数\\t${card.querySelector('.i-lotSize').value || ''}\\n`;
-                text += `納期など管理メモ\\t${card.querySelector('.i-deliveryMemo').value || ''}\\n`;
+                text += `\n↓↓【部品 ${itemNo}】の見積もり条件 ↓↓\n\n`;
+                text += `型番\t${card.querySelector('.i-modelID').value || '未入力'}\n`;
+                text += `製品名\t${card.querySelector('.i-productName').value || '未入力'}\n`;
+                text += `材料費（円/個）\t${card.querySelector('.i-materialCost').value || '0'}\n`;
+                text += `今回のお見積もり数量（個）\t${card.querySelector('.i-orderQty').value || '0'}\n`;
+                text += `ロット作業1回で処理できる個数\t${card.querySelector('.i-lotSize').value || ''}\n`;
+                text += `納期など管理メモ\t${card.querySelector('.i-deliveryMemo').value || ''}\n`;
 
                 // 外注費
                 const outRows = card.querySelectorAll('.i-outsourceTable tbody tr');
                 if (outRows.length > 0) {
-                    text += "\\n【外注費・納期データ（オプション）】\\n外注工程名 / 業者名\\t単価（円）\\t単位\\tリードタイム（納期/日数）\\n";
+                    text += "\n【外注費・納期データ（オプション）】\n外注工程名 / 業者名\t単価（円）\t単位\tリードタイム（納期/日数）\n";
                     outRows.forEach(tr => {
                         let name = tr.querySelector('.o-name').value;
                         let cost = tr.querySelector('.o-cost').value || '0';
                         let unit = tr.querySelector('.o-unit').value;
                         let days = tr.querySelector('.o-days').value || '';
-                        if (name) text += `${name}\\t${cost}\\t${unit}\\t${days}\\n`;
+                        if (name) text += `${name}\t${cost}\t${unit}\t${days}\n`;
                     });
                 }
 
                 // 内製工程
                 const procRows = card.querySelectorAll('.i-processTable tbody tr');
-                text += "\\n【内製 工程データ】\\n工程名\\t所要時間\\t単位\\t適用範囲\\n";
+                text += "\n【内製 工程データ】\n工程名\t所要時間\t単位\t適用範囲\n";
                 let hasProc = false;
                 procRows.forEach(tr => {
                     let name = tr.querySelector('.p-name').value;
@@ -776,25 +787,25 @@
                     let unit = tr.querySelector('.p-unit').value;
                     let scope = tr.querySelector('.p-scope').value;
                     if (name && time) {
-                        text += `${name}\\t${time}\\t${unit}\\t${scope}\\n`;
+                        text += `${name}\t${time}\t${unit}\t${scope}\n`;
                         hasProc = true;
                     }
                 });
-                if (!hasProc) text += "なし\\n";
+                if (!hasProc) text += "なし\n";
 
                 // 割引
                 const discRows = card.querySelectorAll('.i-discountTable tbody tr');
                 if (discRows.length > 0) {
-                    text += "\\n【数量スライド割引設定（オプション・使わない場合は空欄）】\\n条件（個以上）\\t材料費割引倍率\\t時間単価割引倍率\\n";
+                    text += "\n【数量スライド割引設定（オプション・使わない場合は空欄）】\n条件（個以上）\t材料費割引倍率\t時間単価割引倍率\n";
                     discRows.forEach(tr => {
                         let limit = tr.querySelector('.d-limit').value;
                         let mat = tr.querySelector('.d-mat').value || '1';
                         let time = tr.querySelector('.d-time').value || '1';
-                        if (limit) text += `${limit}\\t${mat}\\t${time}\\n`;
+                        if (limit) text += `${limit}\t${mat}\t${time}\n`;
                     });
                 }
 
-                text += "\\n-------------------------------------\\n";
+                text += "\n-------------------------------------\n";
             });
 
             navigator.clipboard.writeText(text).then(() => {
@@ -804,7 +815,7 @@
                 setTimeout(() => { tooltip.classList.remove("show"); }, 2000);
             }).catch(err => {
                 console.error("Copy failed", err);
-                alert("コピーに失敗しました。お使いのブラウザは対応していないか、テキストエリア等を手動でコピーしてください。\\n\\n" + text);
+                alert("コピーに失敗しました。お使いのブラウザは対応していないか、テキストエリア等を手動でコピーしてください。\n\n" + text);
             });
         }
 
@@ -817,7 +828,8 @@
                     project: document.getElementById('g-project').value,
                     reqNo: document.getElementById('g-reqNo').value,
                     hourlyRate: document.getElementById('g-hourlyRate').value,
-                    overheadRate: document.getElementById('g-overheadRate').value
+                    overheadRate: document.getElementById('g-overheadRate').value,
+                    simpleEstimate: document.getElementById('g-simpleEstimate').checked
                 },
                 items: []
             };
@@ -899,6 +911,7 @@
                         document.getElementById('g-reqNo').value = data.global.reqNo || '';
                         document.getElementById('g-hourlyRate').value = data.global.hourlyRate || '4200';
                         document.getElementById('g-overheadRate').value = data.global.overheadRate || '1.5';
+                        document.getElementById('g-simpleEstimate').checked = data.global.simpleEstimate || false;
                     }
 
                     // 既存のアイテムをすべてクリア
@@ -986,4 +999,4 @@
     </script>
 </body>
 
-    </html>
+</html>
